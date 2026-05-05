@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Храм Покрова Пресвятой Богородицы | Дзержинск</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+<header>
+  <div class="container navbar">
+    <div class="logo">Храм Покрова <span>Пресвятой Богородицы</span></div>
+    <div class="menu-icon" id="menuToggle"><i class="fas fa-bars"></i></div>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="index.html">Главная</a></li>
+      <li><a href="church-history.html">О храме</a></li>
+      <li><a href="worship.html">Богослужения</a></li>
+      <li><a href="readings.html">Чтение</a></li>
+      <li><a href="contact.html">Контакты</a></li>
+      <li><a href="clergy.html">Духовенство</a></li>
+      <li><a href="donate.html">Пожертвовать</a></li>
+      <li><a href="gallery.html">Галерея</a></li>
+    </ul>
+  </div>
+</header>
+
+<main>
+  <section class="hero fade-up">
+    <div class="container">
+      <h1>Приход храма Покрова Пресвятой Богородицы</h1>
+      <p>г. Дзержинск, Минская область. Молодечненская епархия</p>
+      <div class="hero-img" style="margin-top:2rem;">
+        <img id="heroImage" alt="Храм" style="width:100%; border-radius: 2rem;">
+      </div>
+    </div>
+  </section>
+
+  <div class="container fade-up">
+    <div class="admin-message-block">
+      <i class="fas fa-bell"></i> <span id="announcementText"></span>
+    </div>
+  </div>
+
+  <section class="section fade-up">
+    <div class="container">
+      <div class="two-cols">
+        <div class="col">
+          <div class="icon-card" style="text-align: center;">
+            <h3>Икона дня</h3>
+            <div id="prav-icon-widget"></div>
+            <script language="Javascript" src="https://script.pravoslavie.ru/icon.php"></script>
+          </div>
+        </div>
+        <div class="col">
+          <div class="calendar-card">
+            <h3><i class="fas fa-calendar-alt"></i> Православный календарь</h3>
+            <script language="Javascript" src="https://script.pravoslavie.ru/calendar.php"></script>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section fade-up" style="background:#f5f9ff;">
+    <div class="container">
+      <h2 class="section-title">Ближайшие богослужения</h2>
+      <div id="scheduleContainer" class="schedule-list"></div>
+    </div>
+  </section>
+
+  <section class="section fade-up">
+    <div class="container">
+      <h2 class="section-title">Последние фото из галереи</h2>
+      <div id="recentGallery" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(250px,1fr)); gap:1.5rem; margin-top:1rem;"></div>
+      <div style="text-align:center; margin-top:1.5rem;">
+        <a href="gallery.html" class="btn">Смотреть всю галерею</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section fade-up">
+    <div class="container">
+      <h2 class="section-title">Полезное чтение</h2>
+      <div class="articles-grid" id="articlesGrid"></div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="radio-links"><div class="container"><div class="links-container"><a href="https://radiovera.ru/" target="_blank"><i class="fas fa-headphones"></i> Радио ВЕРА</a><a href="https://radioobraz.ru/" target="_blank"><i class="fas fa-headphones"></i> Радио ОБРАЗ</a><a href="https://radonezh.ru/" target="_blank"><i class="fas fa-headphones"></i> Радио РАДОНЕЖ</a></div></div></div>
+  <div class="useful-links"><div class="container"><div class="links-container"><a href="https://molod-eparchy.by/ru/" target="_blank">⛪ Молодечненская епархия</a><a href="https://www.church.by/" target="_blank">🌐 Church.by</a><a href="https://pravoslavie.ru/" target="_blank">✝️ Православие.Ru</a><a href="https://azbyka.ru/" target="_blank">📖 Азбука веры</a><a href="https://foma.ru/" target="_blank">📰 Журнал «Фома»</a></div></div></div>
+  <div class="container footer-content"><div>© 2026 Приход храма Покрова Пресвятой Богородицы, г. Дзержинск, ул. Карла Маркса, 2</div></div>
+</footer>
+<button class="back-to-top" id="backToTop">↑</button>
+
+<script src="js/common.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', async () => {
+    await loadCommonData();
+    document.getElementById('heroImage').src = heroImageSrc;
+    document.getElementById('announcementText').innerText = announcementText;
+    const upcoming = getUpcomingSchedule();
+    const scheduleContainer = document.getElementById('scheduleContainer');
+    if (scheduleContainer) {
+      scheduleContainer.innerHTML = upcoming.map(i => `<div class="schedule-item"><span class="schedule-date">${escapeHtml(getFormattedScheduleItem(i))}</span><span>${escapeHtml(i.desc)}</span></div>`).join('') || '<div class="schedule-item">Нет запланированных богослужений</div>';
+    }
+    const recentContainer = document.getElementById('recentGallery');
+    if (recentContainer && galleryEvents.length) {
+      const sorted = [...galleryEvents].sort((a,b) => b.id - a.id);
+      const latestEvent = sorted[0];
+      const latestPhotos = latestEvent.photos.slice(0,3);
+      if (latestPhotos.length) {
+        let html = '';
+        for (let photo of latestPhotos) {
+          let src = await getImageDataUrl(photo.imageId);
+          if (!src) src = 'https://via.placeholder.com/300x180?text=Фото';
+          html += `<div class="photo-thumb" style="background:white; border-radius:1rem; overflow:hidden; box-shadow:0 5px 10px rgba(0,0,0,0.05);">
+            <img src="${src}" style="width:100%; height:180px; object-fit:cover;">
+            <div style="padding:0.5rem; text-align:center;">${escapeHtml(photo.caption)}</div>
+          </div>`;
+        }
+        recentContainer.innerHTML = html;
+      } else recentContainer.innerHTML = '<p>Нет фотографий в последнем событии</p>';
+    } else recentContainer.innerHTML = '<p>Фотографии появятся позже</p>';
+    const articlesGrid = document.getElementById('articlesGrid');
+    if (articlesGrid && articles.length) {
+      let html = '';
+      articles.forEach(article => {
+        html += `<div class="article-card" data-id="${article.id}"><i class="fas fa-book-open"></i><h3>${escapeHtml(article.title)}</h3><p>${escapeHtml(article.content.substring(0,100))}...</p><span class="read-more">Читать →</span></div>`;
+      });
+      articlesGrid.innerHTML = html;
+      document.querySelectorAll('.article-card').forEach(card => {
+        card.addEventListener('click', () => {
+          window.location.href = `article.html?id=${card.getAttribute('data-id')}`;
+        });
+      });
+    }
+    initScrollAnimation();
+  });
+</script>
+</body>
+</html>
